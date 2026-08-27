@@ -6,11 +6,11 @@
     <title>手寫字體，古詩展示</title>
     <style>
         :root {
-            --ink: #312e2b;
+            --ink: #2d2926;
             --paper: #f7f1e5;
             --paper2: #eee4d2;
-            --hand: #b35d4e;
-            --machine: #487697;
+            --hand: #a84d3d;
+            --machine: #315b78;
             --gold: #b18a45;
             --card: rgba(255, 255, 255, .68);
             --shadow: 0 18px 50px rgba(49, 37, 24, .13);
@@ -151,23 +151,15 @@
             max-width: 245px;
             font-size: 12px;
         }
-
+        
         .file-name {
+            display: none;
             font-size: 12px;
             opacity: .65;
             max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .student-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .student-name span {
-            color: var(--gold);
         }
 
         .file-status {
@@ -194,6 +186,26 @@
             overflow: hidden;
             position: relative;
             border: 1px solid rgba(100, 80, 55, .12);
+        }
+
+        /* 浮水印底圖設定 */
+        .book::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url('PGE.jpg');
+            background-size: cover;
+            background-position: center;
+            /* 透明度設定，0.08 代表非常淡，不干擾文字 */
+            opacity: 0.18; 
+            z-index: 0;
+            pointer-events: none; /* 避免干擾滑鼠點擊 */
+        }
+        
+        /* 確保書本內的所有內容都在浮水印之上 */
+        .book > * {
+            position: relative;
+            z-index: 1;
         }
 
         .book-top {
@@ -226,11 +238,12 @@
 
         .poem-title {
             font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
-            font-size: 40px;
+            font-size: 34px;
         }
-
+        
         .poem-author, .page-number {
             opacity: .58;
+            margin-top: 8px;
         }
 
         .page {
@@ -332,11 +345,6 @@
             opacity: .72;
         }
 
-        .small {
-            font-size: 12px;
-            opacity: .58;
-        }
-
         code {
             font-family: ui-monospace, monospace;
         }
@@ -385,7 +393,7 @@
                 <label for="fontFileInput">學生字體</label>
                 <div class="student-input-row">
                     <input id="fontFileInput" type="file" accept=".ttf,.otf,.woff,.woff2">
-                    <span class="file-name" id="fontFileName"></span>
+                    <span class="file-name" id="fontFileName">尚未選擇字體</span>
                 </div>
             </div>
             <div class="file-status" id="fileStatus">等待學生姓名與字體</div>
@@ -421,16 +429,16 @@
             </div>
         </section>
 
-        <!-- <section class="info">
+        <section class="info">
             <div class="info-card">
                 <b>TXT 判定方式</b>
                 <div class="hint">專案中的 <code>handwriting.txt</code> 是手寫內容基準。TXT 中出現的字依序對應到詩句中的相同位置並標成手寫；其餘字標成機器生成。Demo 現場輸入學生姓名並上傳他的字體檔；姓名會在詩詞上方以該學生字體顯示。</div>
             </div>
             <div class="info-card">
                 <b>專案檔案</b>
-                <div class="hint"><code>index.html</code>、<code>student-font.ttf</code>、<code>handwriting.txt</code>、<code>background.mp3</code> 放在同一資料夾即可。建議用 <code>python -m http.server 8000</code> 啟動後開啟網頁，避免瀏覽器阻擋 TXT／字型載入。</div>
+                <div class="hint"><code>index.html</code>、<code>student-font.ttf</code>、<code>handwriting.txt</code>、<code>background.mp3</code>、<code>PGE.jpg</code> 放在同一資料夾即可。建議用 <code>python -m http.server 8000</code> 啟動後開啟網頁，避免瀏覽器阻擋檔案載入。</div>
             </div>
-        </section> -->
+        </section>
     </main>
 
     <script>
@@ -453,7 +461,6 @@
             }
         };
 
-        // 一次 Demo 一位學生：姓名現場輸入，字體現場上傳。
         const demoConfig = { 
             handwritingFile: "handwriting.txt", 
             musicFile: "background.mp3" 
@@ -513,11 +520,9 @@
             }
         }
 
-        // 以 TXT 的字元序列做基準：依序比對詩句；相同位置的字標為手寫，其餘標為機器生成。
         function classify(text) {
             const out = [];
             for (const c of [...normalize(text)]) {
-                // 使用 .includes() 檢查該字是否有出現在 handwritingText 裡面
                 if (handwritingText.includes(c)) {
                     out.push("hand");
                 } else {
@@ -632,7 +637,6 @@
             }
         };
 
-        // 初始化：移除會導致當機的舊有 studentLabel，直接啟動載入程序。
         loadHandwritingAndMusic();
     </script>
 </body>
