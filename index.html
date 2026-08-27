@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手寫字體，古詩展示</title>
+    <style>
+        :root {
+            --ink: #2d2926;
+            --paper: #f7f1e5;
+            --paper2: #eee4d2;
+            --hand: #a84d3d;
+            --machine: #315b78;
+            --gold: #b18a45;
+            --card: rgba(255, 255, 255, .68);
+            --shadow: 0 18px 50px rgba(49, 37, 24, .13);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: radial-gradient(circle at 20% 15%, rgba(177, 138, 69, .12), transparent 28%),
+                        radial-gradient(circle at 85% 80%, rgba(49, 91, 120, .10), transparent 30%),
+                        linear-gradient(135deg, var(--paper), var(--paper2));
+            font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            min-height: 100vh;
+            transition: .35s;
+        }
+
+        body.bg-night {
+            --ink: #eee7da;
+            --paper: #17191c;
+            --paper2: #25262a;
+            --card: rgba(36, 38, 42, .82);
+            background: radial-gradient(circle at 70% 15%, rgba(177, 138, 69, .16), transparent 28%),
+                        linear-gradient(135deg, #141518, #292a2e);
+        }
+
+        header {
+            padding: 30px 7vw 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .brand small {
+            display: block;
+            font-size: 12px;
+            opacity: .6;
+            letter-spacing: .22em;
+            margin-bottom: 7px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
+            font-size: 32px;
+            font-weight: 500;
+            letter-spacing: .12em;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: 1px solid rgba(80, 65, 50, .2);
+            background: var(--card);
+            color: var(--ink);
+            border-radius: 999px;
+            padding: 9px 14px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button.active {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        button:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+        }
+
+        main {
+            width: min(1120px, 92vw);
+            margin: 20px auto 60px;
+        }
+
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            background: var(--card);
+            border: 1px solid rgba(100, 80, 55, .13);
+            border-radius: 22px;
+            padding: 15px 18px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px);
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .student-name span {
+            color: var(--gold);
+        }
+
+        .file-status {
+            font-size: 12px;
+            opacity: .72;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin: 22px 0 15px;
+        }
+
+        .tab.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .book {
+            background: var(--card);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(100, 80, 55, .12);
+        }
+
+        .book-top {
+            padding: 25px 7% 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .poem-title {
+            font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
+            font-size: 34px;
+        }
+
+        .poem-author, .page-number {
+            opacity: .58;
+        }
+
+        .page {
+            min-height: 540px;
+            padding: 42px 8% 50px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .page:before {
+            content: "";
+            position: absolute;
+            inset: 20px 5%;
+            border: 1px solid rgba(120, 95, 60, .12);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .line {
+            position: relative;
+            z-index: 1;
+            font-size: clamp(25px, 3.4vw, 42px);
+            line-height: 1.9;
+            text-align: center;
+            letter-spacing: .13em;
+        }
+
+        .hand {
+            color: var(--hand);
+            font-weight: 500;
+        }
+
+        .machine {
+            color: var(--machine);
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 13px;
+            opacity: .8;
+            padding-bottom: 24px;
+        }
+
+        .legend .item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot.hand {
+            background: var(--hand);
+        }
+
+        .dot.machine {
+            background: var(--machine);
+        }
+
+        .page-control {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            padding: 0 0 28px;
+        }
+
+        .info {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .info-card {
+            background: var(--card);
+            padding: 18px 20px;
+            border-radius: 18px;
+            border: 1px solid rgba(100, 80, 55, .12);
+        }
+
+        .info-card b {
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .hint {
+            font-size: 13px;
+            line-height: 1.75;
+            opacity: .72;
+        }
+
+        .small {
+            font-size: 12px;
+            opacity: .58;
+        }
+
+        code {
+            font-family: ui-monospace, monospace;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .info {
+                grid-template-columns: 1fr;
+            }
+            .page {
+                min-height: 460px;
+                padding: 30px 5%;
+            }
+            .line {
+                letter-spacing: .05em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <small>FONT GENERATION · POETRY DEMO</small>
+            <h1>手寫字體，古詩展示</h1>
+        </div>
+        <div class="toolbar">
+            <button id="musicBtn">♫ 播放音樂</button>
+            <button id="paperBtn" class="active">紙本</button>
+            <button id="nightBtn">夜色</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="control-bar">
+            <div>
+                <div class="student-name">目前學生：<span id="studentLabel">展示者姓名</span></div>
+                <div class="small">每次 Demo 僅展示一位學生，不預設固定人數。</div>
+            </div>
+            <div class="file-status" id="fileStatus">載入中…</div>
+        </section>
+
+        <div class="tabs">
+            <button class="tab active" data-poem="changhenge">長恨歌</button>
+            <button class="tab" data-poem="pipa">琵琶行</button>
+        </div>
+
+        <section class="book">
+            <div class="book-top">
+                <div>
+                    <div class="poem-title" id="poemTitle">長恨歌</div>
+                    <div class="poem-author" id="poemAuthor">白居易</div>
+                </div>
+                <div class="page-number" id="pageTotal"></div>
+            </div>
+            <div class="page" id="page"></div>
+            <div class="legend">
+                <span class="item"><i class="dot hand"></i>手寫內容</span>
+                <span class="item"><i class="dot machine"></i>機器生成</span>
+            </div>
+            <div class="page-control">
+                <button id="prevBtn">← 上一頁</button>
+                <span class="page-number" id="pageNumber">1 / 1</span>
+                <button id="nextBtn">下一頁 →</button>
+            </div>
+        </section>
+
+        <section class="info">
+            <div class="info-card">
+                <b>TXT 判定方式</b>
+                <div class="hint">專案中的 <code>handwriting.txt</code> 是手寫內容基準。TXT 中出現的字依序對應到詩句中的相同位置並標成手寫；其餘字標成機器生成。換學生時只需替換檔案與姓名設定。</div>
+            </div>
+            <div class="info-card">
+                <b>專案檔案</b>
+                <div class="hint"><code>index.html</code>、<code>student-font.ttf</code>、<code>handwriting.txt</code>、<code>background.mp3</code> 放在同一資料夾即可。建議用 <code>python -m http.server 8000</code> 啟動後開啟網頁，避免瀏覽器阻擋 TXT／字型載入。</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const poems = {
+            changhenge: {
+                title: "長恨歌",
+                author: "白居易",
+                pages: [
+                    [["漢皇重色思傾國", "後宮佳麗三千人"], ["三千寵愛在一身", "金屋妝成嬌侍夜"], ["春宵苦短日高起", "從此君王不早朝"], ["春寒賜浴華清池", "溫泉水滑洗凝脂"]],
+                    [["春寒賜浴華清池", "溫泉水滑洗凝脂"], ["侍兒扶起嬌無力", "始是新承恩澤時"], ["雲鬢花顏金步搖", "芙蓉帳暖度春宵"], ["春宵苦短日高起", "從此君王不早朝"]]
+
+                ]
+            },
+            pipa: {
+                title: "琵琶行・前八句",
+                author: "白居易",
+                pages: [
+                    [["潯陽江頭夜送客", "楓葉荻花秋瑟瑟"], ["主人下馬客在船", "舉酒欲飲無管弦"], ["醉不成歡慘將別", "別時茫茫江浸月"], ["忽聞水上琵琶聲", "主人忘歸客不發"]],
+                    [["尋聲暗問彈者誰", "琵琶聲停欲語遲"], ["移船相近邀相見", "添酒回燈重開宴"], ["千呼萬喚始出來", "猶抱琵琶半遮面"], ["轉軸撥弦三兩聲", "未成曲調先有情"]]
+                ]
+            }
+        };
+
+        // 一次 Demo 一位學生：只需修改這裡，不受 10 位限制。
+        const demoConfig = {
+            studentName: "展示者姓名",
+            fontFile: "Font_114598033.ttf",
+            handwritingFile: "handwriting.txt",
+            musicFile: "Guzheng_City.mp3"
+        };
+
+        let currentPoem = "changhenge",
+            currentPage = 0,
+            handwritingText = "",
+            fontLoaded = false,
+            audio = null;
+
+        const $ = id => document.getElementById(id);
+        const normalize = s => (s || "").replace(/\s+/g, "");
+
+        async function loadAssets() {
+            $("studentLabel").textContent = demoConfig.studentName;
+            const status = [];
+            try {
+                const face = new FontFace("DemoStudentFont", `url("${demoConfig.fontFile}")`);
+                await face.load();
+                document.fonts.add(face);
+                fontLoaded = true;
+                status.push("字體 ✓");
+            } catch {
+                status.push("字體未找到，使用系統字體");
+            }
+
+            try {
+                const r = await fetch(demoConfig.handwritingFile, { cache: "no-store" });
+                if (!r.ok) throw 0;
+                handwritingText = normalize(await r.text());
+                status.push(`TXT ✓（${[...handwritingText].length} 字）`);
+            } catch {
+                status.push("handwriting.txt 未找到");
+            }
+
+            audio = new Audio(demoConfig.musicFile);
+            audio.loop = true;
+            audio.volume = .3;
+            status.push("MP3 已設定");
+            $("fileStatus").textContent = status.join(" ｜ ");
+            
+            render();
+        }
+
+        // 以 TXT 的字元序列做基準：依序比對詩句；相同位置的字標為手寫，其餘標為機器生成。
+        function classify(text) {
+            const out = [];
+            for (const c of [...normalize(text)]) {
+                // 使用 .includes() 檢查該字是否有出現在 handwritingText 裡面
+                if (handwritingText.includes(c)) {
+                    out.push("hand");
+                } else {
+                    out.push("machine");
+                }
+            }
+            return out;
+        }
+
+        function segmented(text) {
+            const t = normalize(text), c = classify(t);
+            return [...t].map((x, i) => `<span class="${c[i]}">${x}</span>`).join("");
+        }
+
+        function render() {
+            const poem = poems[currentPoem];
+            $("poemTitle").textContent = poem.title;
+            $("poemAuthor").textContent = poem.author;
+            $("pageTotal").textContent = `共 ${poem.pages.length} 頁`;
+            $("pageNumber").textContent = `${currentPage + 1} / ${poem.pages.length}`;
+            $("prevBtn").disabled = currentPage === 0;
+            $("nextBtn").disabled = currentPage === poem.pages.length - 1;
+            
+            const page = $("page");
+            page.innerHTML = "";
+            
+            for (const [a, b] of poem.pages[currentPage]) {
+                const d = document.createElement("div");
+                d.className = "line";
+                d.innerHTML = segmented(a) + " " + segmented(b);
+                page.appendChild(d);
+            }
+            
+            page.style.fontFamily = fontLoaded ? '"DemoStudentFont", serif' : '"STKaiti", "KaiTi", "DFKai-SB", serif';
+        }
+
+        document.querySelectorAll('.tab').forEach(t => {
+            t.onclick = () => {
+                document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+                currentPoem = t.dataset.poem;
+                currentPage = 0;
+                render();
+            }
+        });
+
+        $("prevBtn").onclick = () => {
+            if (currentPage > 0) {
+                currentPage--;
+                render();
+            }
+        };
+
+        $("nextBtn").onclick = () => {
+            if (currentPage < poems[currentPoem].pages.length - 1) {
+                currentPage++;
+                render();
+            }
+        };
+
+        $("paperBtn").onclick = () => {
+            document.body.classList.remove("bg-night");
+            $("paperBtn").classList.add("active");
+            $("nightBtn").classList.remove("active");
+        };
+
+        $("nightBtn").onclick = () => {
+            document.body.classList.add("bg-night");
+            $("nightBtn").classList.add("active");
+            $("paperBtn").classList.remove("active");
+        };
+
+        $("musicBtn").onclick = async () => {
+            if (!audio) {
+                $("fileStatus").textContent = "找不到 background.mp3";
+                return;
+            }
+            if (audio.paused) {
+                try {
+                    await audio.play();
+                    $("musicBtn").textContent = "♫ 關閉音樂";
+                } catch {
+                    $("fileStatus").textContent = "MP3 無法播放，請確認檔案位於專案資料夾";
+                }
+            } else {
+                audio.pause();
+                $("musicBtn").textContent = "♫ 播放音樂";
+            }
+        };
+
+        loadAssets();
+    </script>
+</body>
+</html>
