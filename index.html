@@ -6,11 +6,11 @@
     <title>手寫字體，古詩展示</title>
     <style>
         :root {
-            --ink: #2d2926;
+            --ink: #312e2b;
             --paper: #f7f1e5;
             --paper2: #eee4d2;
-            --hand: #a84d3d;
-            --machine: #315b78;
+            --hand: #b35d4e;
+            --machine: #487697;
             --gold: #b18a45;
             --card: rgba(255, 255, 255, .68);
             --shadow: 0 18px 50px rgba(49, 37, 24, .13);
@@ -113,6 +113,54 @@
             backdrop-filter: blur(12px);
         }
 
+        .student-input-wrap,
+        .font-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .student-input-wrap label,
+        .font-input-wrap label {
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        .student-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            border: 1px solid rgba(80, 65, 50, .2);
+            background: var(--card);
+            color: var(--ink);
+            border-radius: 999px;
+            padding: 9px 14px;
+            outline: none;
+            min-width: 190px;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(177, 138, 69, .12);
+        }
+
+        input[type="file"] {
+            max-width: 245px;
+            font-size: 12px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            opacity: .65;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .student-name {
             font-size: 18px;
             font-weight: 700;
@@ -155,9 +203,30 @@
             align-items: end;
         }
 
+        .student-display {
+            text-align: center;
+            padding: 28px 20px 4px;
+        }
+
+        .student-display-label {
+            font-size: 12px;
+            letter-spacing: .22em;
+            opacity: .5;
+            margin-bottom: 8px;
+        }
+
+        .student-display-name {
+            font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1.25;
+            letter-spacing: .12em;
+            min-height: 1.4em;
+            color: var(--ink);
+        }
+
         .poem-title {
             font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
-            font-size: 34px;
+            font-size: 40px;
         }
 
         .poem-author, .page-number {
@@ -305,11 +374,21 @@
 
     <main>
         <section class="control-bar">
-            <div>
-                <div class="student-name">目前學生：<span id="studentLabel">展示者姓名</span></div>
-                <div class="small">每次 Demo 僅展示一位學生，不預設固定人數。</div>
+            <div class="student-input-wrap">
+                <label for="studentNameInput">目前學生姓名</label>
+                <div class="student-input-row">
+                    <input id="studentNameInput" type="text" placeholder="請輸入學生姓名">
+                    <button id="applyStudentNameBtn" type="button">套用</button>
+                </div>
             </div>
-            <div class="file-status" id="fileStatus">載入中…</div>
+            <div class="font-input-wrap">
+                <label for="fontFileInput">學生字體</label>
+                <div class="student-input-row">
+                    <input id="fontFileInput" type="file" accept=".ttf,.otf,.woff,.woff2">
+                    <span class="file-name" id="fontFileName"></span>
+                </div>
+            </div>
+            <div class="file-status" id="fileStatus">等待學生姓名與字體</div>
         </section>
 
         <div class="tabs">
@@ -318,6 +397,11 @@
         </div>
 
         <section class="book">
+            <div class="student-display">
+                <div class="student-display-label">本次展示學生</div>
+                <div class="student-display-name" id="studentDisplayName">請輸入學生姓名</div>
+            </div>
+
             <div class="book-top">
                 <div>
                     <div class="poem-title" id="poemTitle">長恨歌</div>
@@ -337,16 +421,16 @@
             </div>
         </section>
 
-        <section class="info">
+        <!-- <section class="info">
             <div class="info-card">
                 <b>TXT 判定方式</b>
-                <div class="hint">專案中的 <code>handwriting.txt</code> 是手寫內容基準。TXT 中出現的字依序對應到詩句中的相同位置並標成手寫；其餘字標成機器生成。換學生時只需替換檔案與姓名設定。</div>
+                <div class="hint">專案中的 <code>handwriting.txt</code> 是手寫內容基準。TXT 中出現的字依序對應到詩句中的相同位置並標成手寫；其餘字標成機器生成。Demo 現場輸入學生姓名並上傳他的字體檔；姓名會在詩詞上方以該學生字體顯示。</div>
             </div>
             <div class="info-card">
                 <b>專案檔案</b>
                 <div class="hint"><code>index.html</code>、<code>student-font.ttf</code>、<code>handwriting.txt</code>、<code>background.mp3</code> 放在同一資料夾即可。建議用 <code>python -m http.server 8000</code> 啟動後開啟網頁，避免瀏覽器阻擋 TXT／字型載入。</div>
             </div>
-        </section>
+        </section> -->
     </main>
 
     <script>
@@ -357,7 +441,6 @@
                 pages: [
                     [["漢皇重色思傾國", "後宮佳麗三千人"], ["三千寵愛在一身", "金屋妝成嬌侍夜"], ["春宵苦短日高起", "從此君王不早朝"], ["春寒賜浴華清池", "溫泉水滑洗凝脂"]],
                     [["春寒賜浴華清池", "溫泉水滑洗凝脂"], ["侍兒扶起嬌無力", "始是新承恩澤時"], ["雲鬢花顏金步搖", "芙蓉帳暖度春宵"], ["春宵苦短日高起", "從此君王不早朝"]]
-
                 ]
             },
             pipa: {
@@ -370,52 +453,64 @@
             }
         };
 
-        // 一次 Demo 一位學生：只需修改這裡，不受 10 位限制。
-        const demoConfig = {
-            studentName: "展示者姓名",
-            fontFile: "Font_114598033.ttf",
-            handwritingFile: "handwriting.txt",
-            musicFile: "Guzheng_City.mp3"
+        // 一次 Demo 一位學生：姓名現場輸入，字體現場上傳。
+        const demoConfig = { 
+            handwritingFile: "handwriting.txt", 
+            musicFile: "background.mp3" 
         };
-
-        let currentPoem = "changhenge",
-            currentPage = 0,
-            handwritingText = "",
-            fontLoaded = false,
-            audio = null;
-
+        
+        let currentPoem = "changhenge", 
+            currentPage = 0, 
+            handwritingText = "", 
+            fontLoaded = false, 
+            audio = null, 
+            currentStudentName = "", 
+            currentFontName = "DemoStudentFont";
+            
         const $ = id => document.getElementById(id);
         const normalize = s => (s || "").replace(/\s+/g, "");
 
-        async function loadAssets() {
-            $("studentLabel").textContent = demoConfig.studentName;
+        async function loadHandwritingAndMusic() {
             const status = [];
             try {
-                const face = new FontFace("DemoStudentFont", `url("${demoConfig.fontFile}")`);
-                await face.load();
-                document.fonts.add(face);
-                fontLoaded = true;
-                status.push("字體 ✓");
-            } catch {
-                status.push("字體未找到，使用系統字體");
-            }
-
-            try {
                 const r = await fetch(demoConfig.handwritingFile, { cache: "no-store" });
-                if (!r.ok) throw 0;
+                if (!r.ok) throw new Error("Fetch failed");
                 handwritingText = normalize(await r.text());
                 status.push(`TXT ✓（${[...handwritingText].length} 字）`);
-            } catch {
+            } catch (error) {
+                handwritingText = "";
                 status.push("handwriting.txt 未找到");
             }
-
+            
             audio = new Audio(demoConfig.musicFile);
             audio.loop = true;
             audio.volume = .3;
             status.push("MP3 已設定");
-            $("fileStatus").textContent = status.join(" ｜ ");
             
+            $("fileStatus").textContent = status.join(" ｜ ");
             render();
+        }
+
+        async function loadStudentFont(file) {
+            if (!file) {
+                $("fileStatus").textContent = "請選擇學生字體檔";
+                return;
+            }
+            try {
+                const buffer = await file.arrayBuffer();
+                currentFontName = "DemoStudentFont_" + Date.now();
+                const face = new FontFace(currentFontName, buffer);
+                await face.load();
+                document.fonts.add(face);
+                fontLoaded = true;
+                $("fontFileName").textContent = file.name;
+                $("fileStatus").textContent = `${currentStudentName || "目前學生"} ｜ 字體 ✓ ${file.name}`;
+                render();
+            } catch (e) {
+                fontLoaded = false;
+                $("fontFileName").textContent = "字體載入失敗";
+                $("fileStatus").textContent = "無法載入字體，請確認檔案格式";
+            }
         }
 
         // 以 TXT 的字元序列做基準：依序比對詩句；相同位置的字標為手寫，其餘標為機器生成。
@@ -456,8 +551,32 @@
                 page.appendChild(d);
             }
             
-            page.style.fontFamily = fontLoaded ? '"DemoStudentFont", serif' : '"STKaiti", "KaiTi", "DFKai-SB", serif';
+            const demoFont = fontLoaded
+                ? `"${currentFontName}", serif`
+                : '"STKaiti", "KaiTi", "DFKai-SB", serif';
+
+            page.style.fontFamily = demoFont;
+            $("studentDisplayName").style.fontFamily = demoFont;
         }
+
+        function applyStudentName() {
+            currentStudentName = $("studentNameInput").value.trim() || "展示者姓名";
+            $("studentDisplayName").textContent = currentStudentName;
+            $("fileStatus").textContent = `${currentStudentName} ｜ ${fontLoaded ? "字體已載入" : "尚未載入字體"}`;
+            render();
+        }
+
+        $("applyStudentNameBtn").onclick = applyStudentName;
+        
+        $("studentNameInput").addEventListener("input", e => {
+            $("studentDisplayName").textContent = e.target.value.trim() || "請輸入學生姓名";
+        });
+        
+        $("studentNameInput").addEventListener("keydown", e => {
+            if (e.key === "Enter") applyStudentName();
+        });
+        
+        $("fontFileInput").addEventListener("change", e => loadStudentFont(e.target.files[0]));
 
         document.querySelectorAll('.tab').forEach(t => {
             t.onclick = () => {
@@ -513,7 +632,8 @@
             }
         };
 
-        loadAssets();
+        // 初始化：移除會導致當機的舊有 studentLabel，直接啟動載入程序。
+        loadHandwritingAndMusic();
     </script>
 </body>
 </html>
