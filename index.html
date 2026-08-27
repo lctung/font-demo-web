@@ -14,6 +14,8 @@
             --gold: #b18a45;
             --card: rgba(255, 255, 255, .68);
             --shadow: 0 18px 50px rgba(49, 37, 24, .13);
+            /* 新增：字體縮放倍率預設為 1 */
+            --font-scale: 1; 
         }
 
         * {
@@ -35,6 +37,8 @@
             --ink: #eee7da;
             --paper: #17191c;
             --paper2: #25262a;
+            --hand: #e78f7f;
+            --machine: #6ca2c9;
             --card: rgba(36, 38, 42, .82);
             background: radial-gradient(circle at 70% 15%, rgba(177, 138, 69, .16), transparent 28%),
                         linear-gradient(135deg, #141518, #292a2e);
@@ -102,8 +106,8 @@
         .control-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 14px;
+            justify-content: flex-start;
+            gap: 24px;
             flex-wrap: wrap;
             background: var(--card);
             border: 1px solid rgba(100, 80, 55, .13);
@@ -114,14 +118,16 @@
         }
 
         .student-input-wrap,
-        .font-input-wrap {
+        .font-input-wrap,
+        .font-size-wrap {
             display: flex;
             flex-direction: column;
             gap: 7px;
         }
 
         .student-input-wrap label,
-        .font-input-wrap label {
+        .font-input-wrap label,
+        .font-size-wrap label {
             font-size: 12px;
             opacity: .65;
         }
@@ -152,6 +158,13 @@
             font-size: 12px;
         }
         
+        /* 新增：控制拉桿的樣式 */
+        input[type="range"] {
+            accent-color: var(--gold);
+            cursor: pointer;
+            width: 130px;
+        }
+        
         .file-name {
             display: none;
             font-size: 12px;
@@ -165,6 +178,7 @@
         .file-status {
             font-size: 12px;
             opacity: .72;
+            margin-left: auto; /* 讓狀態文字靠右對齊 */
         }
 
         .tabs {
@@ -188,7 +202,6 @@
             border: 1px solid rgba(100, 80, 55, .12);
         }
 
-        /* 浮水印底圖設定 */
         .book::before {
             content: "";
             position: absolute;
@@ -196,13 +209,11 @@
             background-image: url('PGE.jpg');
             background-size: cover;
             background-position: center;
-            /* 透明度設定，0.08 代表非常淡，不干擾文字 */
-            opacity: 0.18; 
+            opacity: 0.12; 
             z-index: 0;
-            pointer-events: none; /* 避免干擾滑鼠點擊 */
+            pointer-events: none; 
         }
         
-        /* 確保書本內的所有內容都在浮水印之上 */
         .book > * {
             position: relative;
             z-index: 1;
@@ -267,10 +278,13 @@
         .line {
             position: relative;
             z-index: 1;
-            font-size: clamp(25px, 3.4vw, 42px);
+            /* 新增：利用 calc() 乘上 --font-scale 倍率來達成動態縮放 */
+            font-size: calc(clamp(25px, 3.4vw, 42px) * var(--font-scale));
             line-height: 1.9;
             text-align: center;
             letter-spacing: .13em;
+            /* 讓放大縮小過程有一點平滑動畫效果 */
+            transition: font-size 0.15s ease-out; 
         }
 
         .hand {
@@ -364,6 +378,9 @@
             .line {
                 letter-spacing: .05em;
             }
+            .file-status {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
@@ -394,6 +411,13 @@
                 <div class="student-input-row">
                     <input id="fontFileInput" type="file" accept=".ttf,.otf,.woff,.woff2">
                     <span class="file-name" id="fontFileName">尚未選擇字體</span>
+                </div>
+            </div>
+            <!-- 新增的文字大小拉桿 -->
+            <div class="font-size-wrap">
+                <label for="fontSizeSlider">詩詞大小</label>
+                <div class="student-input-row">
+                    <input type="range" id="fontSizeSlider" min="0.8" max="1.8" step="0.05" value="1">
                 </div>
             </div>
             <div class="file-status" id="fileStatus">等待學生姓名與字體</div>
@@ -428,17 +452,6 @@
                 <button id="nextBtn">下一頁 →</button>
             </div>
         </section>
-
-        <section class="info">
-            <div class="info-card">
-                <b>TXT 判定方式</b>
-                <div class="hint">專案中的 <code>handwriting.txt</code> 是手寫內容基準。TXT 中出現的字依序對應到詩句中的相同位置並標成手寫；其餘字標成機器生成。Demo 現場輸入學生姓名並上傳他的字體檔；姓名會在詩詞上方以該學生字體顯示。</div>
-            </div>
-            <div class="info-card">
-                <b>專案檔案</b>
-                <div class="hint"><code>index.html</code>、<code>student-font.ttf</code>、<code>handwriting.txt</code>、<code>background.mp3</code>、<code>PGE.jpg</code> 放在同一資料夾即可。建議用 <code>python -m http.server 8000</code> 啟動後開啟網頁，避免瀏覽器阻擋檔案載入。</div>
-            </div>
-        </section>
     </main>
 
     <script>
@@ -452,7 +465,7 @@
                 ]
             },
             pipa: {
-                title: "琵琶行・前八句",
+                title: "琵琶行",
                 author: "白居易",
                 pages: [
                     [["潯陽江頭夜送客", "楓葉荻花秋瑟瑟"], ["主人下馬客在船", "舉酒欲飲無管弦"], ["醉不成歡慘將別", "別時茫茫江浸月"], ["忽聞水上琵琶聲", "主人忘歸客不發"]],
@@ -582,6 +595,11 @@
         });
         
         $("fontFileInput").addEventListener("change", e => loadStudentFont(e.target.files[0]));
+
+        // 新增：監聽拉桿事件，即時改變 CSS 變數中的縮放倍率
+        $("fontSizeSlider").addEventListener("input", e => {
+            document.documentElement.style.setProperty('--font-scale', e.target.value);
+        });
 
         document.querySelectorAll('.tab').forEach(t => {
             t.onclick = () => {
