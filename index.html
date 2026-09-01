@@ -117,7 +117,7 @@
             backdrop-filter: blur(12px);
         }
 
-        .student-input-wrap,
+        .live-display-wrap,
         .font-input-wrap,
         .font-size-wrap {
             display: flex;
@@ -125,14 +125,14 @@
             gap: 7px;
         }
 
-        .student-input-wrap label,
+        .live-display-wrap label,
         .font-input-wrap label,
         .font-size-wrap label {
             font-size: 12px;
             opacity: .65;
         }
 
-        .student-input-row {
+        .live-display-row {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -151,6 +151,33 @@
         input[type="text"]:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(177, 138, 69, .12);
+        }
+
+        select {
+            border: 1px solid rgba(80, 65, 50, .2);
+            background: var(--card);
+            color: var(--ink);
+            border-radius: 999px;
+            padding: 9px 36px 9px 14px;
+            outline: none;
+            min-width: 190px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(177, 138, 69, .12);
+        }
+
+        .student-select-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .student-select-wrap label {
+            font-size: 12px;
+            opacity: .65;
         }
 
         input[type="file"] {
@@ -206,7 +233,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url('PGE.jpg');
+            background-image: var(--poem-bg, url('img/PGE_chg'));
             background-size: cover;
             background-position: center;
             opacity: 0.12; 
@@ -226,19 +253,19 @@
             align-items: end;
         }
 
-        .student-display {
+        .live-display {
             text-align: center;
             padding: 28px 20px 4px;
         }
 
-        .student-display-label {
+        .live-display-label {
             font-size: 12px;
             letter-spacing: .22em;
             opacity: .5;
             margin-bottom: 8px;
         }
 
-        .student-display-name {
+        .live-display-name {
             font-family: "STKaiti", "KaiTi", "DFKai-SB", serif;
             font-size: clamp(34px, 5vw, 58px);
             line-height: 1.25;
@@ -399,16 +426,23 @@
 
     <main>
         <section class="control-bar">
-            <div class="student-input-wrap">
-                <label for="studentNameInput">目前學生姓名</label>
-                <div class="student-input-row">
-                    <input id="studentNameInput" type="text" placeholder="請輸入學生姓名">
-                    <button id="applyStudentNameBtn" type="button">套用</button>
+            <div class="live-display-wrap">
+                <label for="liveDisplayInput">即時展示</label>
+                <div class="live-display-row">
+                    <input id="liveDisplayInput" type="text" placeholder="請輸入展示名稱">
+                </div>
+            </div>
+            <div class="student-select-wrap">
+                <label for="studentSelect">學生字體</label>
+                <div class="live-display-row">
+                    <select id="studentSelect">
+                        <option value="">讀取學生名單中...</option>
+                    </select>
                 </div>
             </div>
             <div class="font-input-wrap">
-                <label for="fontFileInput">學生字體</label>
-                <div class="student-input-row">
+                <label for="fontFileInput">展示字體</label>
+                <div class="live-display-row">
                     <input id="fontFileInput" type="file" accept=".ttf,.otf,.woff,.woff2">
                     <span class="file-name" id="fontFileName">尚未選擇字體</span>
                 </div>
@@ -416,11 +450,11 @@
             <!-- 新增的文字大小拉桿 -->
             <div class="font-size-wrap">
                 <label for="fontSizeSlider">詩詞大小</label>
-                <div class="student-input-row">
+                <div class="live-display-row">
                     <input type="range" id="fontSizeSlider" min="0.8" max="1.8" step="0.05" value="1">
                 </div>
             </div>
-            <div class="file-status" id="fileStatus">等待學生姓名與字體</div>
+            <div class="file-status" id="fileStatus">等待即時展示與字體</div>
         </section>
 
         <div class="tabs">
@@ -429,9 +463,9 @@
         </div>
 
         <section class="book">
-            <div class="student-display">
-                <div class="student-display-label">本次展示學生</div>
-                <div class="student-display-name" id="studentDisplayName">請輸入學生姓名</div>
+            <div class="live-display">
+                <div class="live-display-label">即時展示</div>
+                <div class="live-display-name" id="liveDisplayName">請輸入展示名稱</div>
             </div>
 
             <div class="book-top">
@@ -459,6 +493,7 @@
             changhenge: {
                 title: "長恨歌",
                 author: "白居易",
+                background: "./img/PGE_chg.jpg",
                 pages: [
                     [["漢皇重色思傾國", "後宮佳麗三千人"], ["三千寵愛在一身", "金屋妝成嬌侍夜"], ["春宵苦短日高起", "從此君王不早朝"], ["春寒賜浴華清池", "溫泉水滑洗凝脂"]],
                     [["春寒賜浴華清池", "溫泉水滑洗凝脂"], ["侍兒扶起嬌無力", "始是新承恩澤時"], ["雲鬢花顏金步搖", "芙蓉帳暖度春宵"], ["春宵苦短日高起", "從此君王不早朝"]]
@@ -467,6 +502,7 @@
             pipa: {
                 title: "琵琶行",
                 author: "白居易",
+                background: "./img/PGE_ppx.jpg",
                 pages: [
                     [["潯陽江頭夜送客", "楓葉荻花秋瑟瑟"], ["主人下馬客在船", "舉酒欲飲無管弦"], ["醉不成歡慘將別", "別時茫茫江浸月"], ["忽聞水上琵琶聲", "主人忘歸客不發"]],
                     [["尋聲暗問彈者誰", "琵琶聲停欲語遲"], ["移船相近邀相見", "添酒回燈重開宴"], ["千呼萬喚始出來", "猶抱琵琶半遮面"], ["轉軸撥弦三兩聲", "未成曲調先有情"]]
@@ -474,21 +510,111 @@
             }
         };
 
-        const demoConfig = { 
-            handwritingFile: "handwriting.txt", 
-            musicFile: "background.mp3" 
+        const demoConfig = {
+            handwritingFile: "handwriting.txt",
+            musicFile: "background.mp3",
+            studentListFile: "students.json"
         };
-        
-        let currentPoem = "changhenge", 
-            currentPage = 0, 
-            handwritingText = "", 
-            fontLoaded = false, 
-            audio = null, 
-            currentStudentName = "", 
+
+        // students.json 格式：
+        // [
+        //   { "name": "王小明", "font": "wangxiaoming.ttf" },
+        //   { "name": "陳小華", "font": "chenxiaohua.ttf" }
+        // ]
+        let studentList = [];
+
+        let currentPoem = "changhenge",
+            currentPage = 0,
+            handwritingText = "",
+            fontLoaded = false,
+            audio = null,
+            currentLiveDisplayName = "",
             currentFontName = "DemoStudentFont";
             
         const $ = id => document.getElementById(id);
         const normalize = s => (s || "").replace(/\s+/g, "");
+
+        async function loadStudentList() {
+            const select = $("studentSelect");
+
+            try {
+                const response = await fetch(demoConfig.studentListFile, { cache: "no-store" });
+                if (!response.ok) throw new Error("Student list fetch failed");
+
+                const data = await response.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error("students.json 必須是陣列");
+                }
+
+                studentList = data.filter(student =>
+                    student &&
+                    typeof student.name === "string" &&
+                    typeof student.font === "string" &&
+                    student.name.trim() &&
+                    student.font.trim()
+                );
+
+                select.innerHTML = "";
+
+                if (studentList.length === 0) {
+                    select.innerHTML = '<option value="">沒有可展示的學生</option>';
+                    $("fileStatus").textContent = "students.json 沒有有效的學生資料";
+                    return;
+                }
+
+                studentList.forEach((student, index) => {
+                    const option = document.createElement("option");
+                    option.value = String(index);
+                    option.textContent = `${student.name} ｜ ${student.font}`;
+                    select.appendChild(option);
+                });
+
+                select.selectedIndex = 0;
+                await applySelectedStudent(0);
+            } catch (error) {
+                studentList = [];
+                select.innerHTML = '<option value="">無法讀取 students.json</option>';
+                $("fileStatus").textContent = "找不到或無法讀取 students.json";
+                console.error(error);
+            }
+        }
+
+        async function applySelectedStudent(index) {
+            const student = studentList[index];
+            if (!student) return;
+
+            currentLiveDisplayName = student.name;
+            $("liveDisplayInput").value = student.name;
+            $("liveDisplayName").textContent = student.name;
+
+            try {
+                const response = await fetch(student.font, { cache: "no-store" });
+                if (!response.ok) {
+                    throw new Error(`字體檔案不存在：${student.font}`);
+                }
+
+                const buffer = await response.arrayBuffer();
+                currentFontName = "DemoStudentFont_" + index + "_" + Date.now();
+
+                const face = new FontFace(currentFontName, buffer);
+                await face.load();
+                document.fonts.add(face);
+
+                fontLoaded = true;
+                $("fontFileName").textContent = student.font;
+                $("fileStatus").textContent =
+                    `${student.name} ｜ 展示字體 ✓ ${student.font}`;
+                render();
+            } catch (error) {
+                fontLoaded = false;
+                $("fontFileName").textContent = student.font;
+                $("fileStatus").textContent =
+                    `${student.name} ｜ 展示字體載入失敗`;
+                console.error(error);
+                render();
+            }
+        }
 
         async function loadHandwritingAndMusic() {
             const status = [];
@@ -511,25 +637,25 @@
             render();
         }
 
-        async function loadStudentFont(file) {
+        async function loadSelectedStudentFont(file) {
             if (!file) {
-                $("fileStatus").textContent = "請選擇學生字體檔";
+                $("fileStatus").textContent = "請選擇展示字體檔";
                 return;
             }
             try {
                 const buffer = await file.arrayBuffer();
-                currentFontName = "DemoStudentFont_" + Date.now();
+                currentFontName = "ManualDemoStudentFont_" + Date.now();
                 const face = new FontFace(currentFontName, buffer);
                 await face.load();
                 document.fonts.add(face);
                 fontLoaded = true;
                 $("fontFileName").textContent = file.name;
-                $("fileStatus").textContent = `${currentStudentName || "目前學生"} ｜ 字體 ✓ ${file.name}`;
+                $("fileStatus").textContent = `${currentLiveDisplayName || "目前學生"} ｜ 字體 ✓ ${file.name}`;
                 render();
             } catch (e) {
                 fontLoaded = false;
                 $("fontFileName").textContent = "字體載入失敗";
-                $("fileStatus").textContent = "無法載入字體，請確認檔案格式";
+                $("fileStatus").textContent = "無法載入展示字體，請確認檔案格式";
             }
         }
 
@@ -553,6 +679,12 @@
         function render() {
             const poem = poems[currentPoem];
             $("poemTitle").textContent = poem.title;
+
+            // 依目前詩詞切換古詩背景圖片
+            document.querySelector(".book").style.setProperty(
+                "--poem-bg",
+                `url("${poem.background}")`
+            );
             $("poemAuthor").textContent = poem.author;
             $("pageTotal").textContent = `共 ${poem.pages.length} 頁`;
             $("pageNumber").textContent = `${currentPage + 1} / ${poem.pages.length}`;
@@ -574,27 +706,23 @@
                 : '"STKaiti", "KaiTi", "DFKai-SB", serif';
 
             page.style.fontFamily = demoFont;
-            $("studentDisplayName").style.fontFamily = demoFont;
+            $("liveDisplayName").style.fontFamily = demoFont;
         }
 
-        function applyStudentName() {
-            currentStudentName = $("studentNameInput").value.trim() || "展示者姓名";
-            $("studentDisplayName").textContent = currentStudentName;
-            $("fileStatus").textContent = `${currentStudentName} ｜ ${fontLoaded ? "字體已載入" : "尚未載入字體"}`;
-            render();
-        }
+        // 即時展示：輸入文字時同步更新展示姓名
+        $("liveDisplayInput").addEventListener("input", e => {
+            $("liveDisplayName").textContent =
+                e.target.value.trim() || "即時展示";
+        });
 
-        $("applyStudentNameBtn").onclick = applyStudentName;
-        
-        $("studentNameInput").addEventListener("input", e => {
-            $("studentDisplayName").textContent = e.target.value.trim() || "請輸入學生姓名";
+        $("studentSelect").addEventListener("change", async e => {
+            const index = Number(e.target.value);
+            if (!Number.isNaN(index)) {
+                await applySelectedStudent(index);
+            }
         });
         
-        $("studentNameInput").addEventListener("keydown", e => {
-            if (e.key === "Enter") applyStudentName();
-        });
-        
-        $("fontFileInput").addEventListener("change", e => loadStudentFont(e.target.files[0]));
+        $("fontFileInput").addEventListener("change", e => loadSelectedStudentFont(e.target.files[0]));
 
         // 新增：監聽拉桿事件，即時改變 CSS 變數中的縮放倍率
         $("fontSizeSlider").addEventListener("input", e => {
@@ -655,6 +783,7 @@
             }
         };
 
+        loadStudentList();
         loadHandwritingAndMusic();
     </script>
 </body>
