@@ -361,6 +361,23 @@
             padding: 0 0 28px;
         }
 
+        .bg-info-box {
+            margin-top: 20px;
+            padding: 14px 20px;
+            background: var(--card);
+            border: 1px solid rgba(100, 80, 55, .12);
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.7;
+            opacity: .85;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .bg-info-box p {
+            margin: 0;
+        }
+
         .info {
             margin-top: 18px;
             display: grid;
@@ -486,6 +503,11 @@
                 <button id="nextBtn">下一頁 →</button>
             </div>
         </section>
+
+        <!-- 背景圖說明區塊 -->
+        <section class="bg-info-box">
+            <p id="bgPromptDesc">背景圖由 Gemini 生成</p>
+        </section>
     </main>
 
     <script>
@@ -494,6 +516,7 @@
                 title: "長恨歌",
                 author: "白居易",
                 background: "./img/PGE_chg.jpg",
+                promptDesc: "背景圖由 Gemini 生成，Prompt: 生成一張唐代詩人白居易的圖片，適合拿來當網頁背景圖，繪畫風格符合寫下長恨歌的時代背景，要很中國古代風格",
                 pages: [
                     [["漢皇重色思傾國", "後宮佳麗三千人"], ["三千寵愛在一身", "金屋妝成嬌侍夜"], ["春宵苦短日高起", "從此君王不早朝"], ["春寒賜浴華清池", "溫泉水滑洗凝脂"]],
                     [["春寒賜浴華清池", "溫泉水滑洗凝脂"], ["侍兒扶起嬌無力", "始是新承恩澤時"], ["雲鬢花顏金步搖", "芙蓉帳暖度春宵"], ["春宵苦短日高起", "從此君王不早朝"]],
@@ -516,6 +539,7 @@
                 title: "琵琶行",
                 author: "白居易",
                 background: "./img/PGE_ppx.jpg",
+                promptDesc: "背景圖由 Gemini 生成，Prompt: 生成一張唐代詩人白居易的圖片，適合拿來當網頁背景圖，繪畫風格符合寫下琵琶行的時代背景，要很中國古代風格",
                 pages: [
                     [["潯陽江頭夜送客", "楓葉荻花秋瑟瑟"], ["主人下馬客在船", "舉酒欲飲無管弦"], ["醉不成歡慘將別", "別時茫茫江浸月"], ["忽聞水上琵琶聲", "主人忘歸客不發"]],
                     [["尋聲暗問彈者誰", "琵琶聲停欲語遲"], ["移船相近邀相見", "添酒回燈重開宴"], ["千呼萬喚始出來", "猶抱琵琶半遮面"], ["轉軸撥弦三兩聲", "未成曲調先有情"]],
@@ -538,11 +562,6 @@
             studentListFile: "students.json"
         };
 
-        // students.json 格式：
-        // [
-        //   { "name": "王小明", "font": "wangxiaoming.ttf" },
-        //   { "name": "陳小華", "font": "chenxiaohua.ttf" }
-        // ]
         let studentList = [];
 
         let currentPoem = "changhenge",
@@ -707,6 +726,13 @@
                 "--poem-bg",
                 `url("${poem.background}")`
             );
+
+            // 更新背景圖來源 Prompt 說明文字
+            const bgDescEl = $("bgPromptDesc");
+            if (bgDescEl) {
+                bgDescEl.textContent = poem.promptDesc;
+            }
+
             $("poemAuthor").textContent = poem.author;
             $("pageTotal").textContent = `共 ${poem.pages.length} 頁`;
             $("pageNumber").textContent = `${currentPage + 1} / ${poem.pages.length}`;
@@ -746,7 +772,7 @@
         
         $("fontFileInput").addEventListener("change", e => loadSelectedStudentFont(e.target.files[0]));
 
-        // 新增：監聽拉桿事件，即時改變 CSS 變數中的縮放倍率
+        // 監聽拉桿事件，即時改變 CSS 變數中的縮放倍率
         $("fontSizeSlider").addEventListener("input", e => {
             document.documentElement.style.setProperty('--font-scale', e.target.value);
         });
