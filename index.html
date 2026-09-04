@@ -100,7 +100,7 @@
 
         main {
             width: min(1120px, 92vw);
-            margin: 20px auto 60px;
+            margin: 20px auto 40px;
         }
 
         .control-bar {
@@ -185,7 +185,7 @@
             font-size: 12px;
         }
         
-        /* 新增：控制拉桿的樣式 */
+        /* 控制拉桿樣式 */
         input[type="range"] {
             accent-color: var(--gold);
             cursor: pointer;
@@ -205,7 +205,7 @@
         .file-status {
             font-size: 12px;
             opacity: .72;
-            margin-left: auto; /* 讓狀態文字靠右對齊 */
+            margin-left: auto;
         }
 
         .tabs {
@@ -305,12 +305,10 @@
         .line {
             position: relative;
             z-index: 1;
-            /* 新增：利用 calc() 乘上 --font-scale 倍率來達成動態縮放 */
             font-size: calc(clamp(25px, 3.4vw, 42px) * var(--font-scale));
             line-height: 1.9;
             text-align: center;
             letter-spacing: .13em;
-            /* 讓放大縮小過程有一點平滑動畫效果 */
             transition: font-size 0.15s ease-out; 
         }
 
@@ -378,42 +376,36 @@
             margin: 0;
         }
 
-        .info {
-            margin-top: 18px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .info-card {
-            background: var(--card);
-            padding: 18px 20px;
-            border-radius: 18px;
-            border: 1px solid rgba(100, 80, 55, .12);
-        }
-
-        .info-card b {
-            display: block;
-            margin-bottom: 7px;
-        }
-
-        .hint {
+        footer {
+            width: min(1120px, 92vw);
+            margin: 40px auto;
+            padding-top: 30px;
+            border-top: 1px dashed rgba(100, 80, 55, .25);
+            text-align: center;
             font-size: 13px;
-            line-height: 1.75;
-            opacity: .72;
+            letter-spacing: .03em;
+            opacity: .75;
         }
 
-        code {
-            font-family: ui-monospace, monospace;
+        body.bg-night footer {
+            border-top-color: rgba(238, 231, 218, .2);
+        }
+
+        footer a {
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            transition: opacity .2s;
+        }
+
+        footer a:hover {
+            opacity: .6;
         }
 
         @media (max-width: 700px) {
             header {
                 align-items: flex-start;
                 flex-direction: column;
-            }
-            .info {
-                grid-template-columns: 1fr;
             }
             .page {
                 min-height: 460px;
@@ -464,7 +456,6 @@
                     <span class="file-name" id="fontFileName">尚未選擇字體</span>
                 </div>
             </div>
-            <!-- 新增的文字大小拉桿 -->
             <div class="font-size-wrap">
                 <label for="fontSizeSlider">詩詞大小</label>
                 <div class="live-display-row">
@@ -509,6 +500,11 @@
             <p id="bgPromptDesc">背景圖由 Gemini 生成</p>
         </section>
     </main>
+
+    <!-- 音樂授權資訊頁尾 -->
+    <footer>
+        Music: "Guzheng City" by Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener noreferrer">incompetech.com</a>) | Licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
+    </footer>
 
     <script>
         const poems = {
