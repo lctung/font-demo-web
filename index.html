@@ -14,8 +14,8 @@
             --gold: #b18a45;
             --card: rgba(255, 255, 255, .68);
             --shadow: 0 18px 50px rgba(49, 37, 24, .13);
-            /* 新增：字體縮放倍率預設為 1 */
-            --font-scale: 1; 
+            --font-scale: 1;
+            --font-weight: 500; 
         }
 
         * {
@@ -119,7 +119,8 @@
 
         .live-display-wrap,
         .font-input-wrap,
-        .font-size-wrap {
+        .font-size-wrap,
+        .font-weight-wrap {
             display: flex;
             flex-direction: column;
             gap: 7px;
@@ -127,7 +128,8 @@
 
         .live-display-wrap label,
         .font-input-wrap label,
-        .font-size-wrap label {
+        .font-size-wrap label,
+        .font-weight-wrap label {
             font-size: 12px;
             opacity: .65;
         }
@@ -302,24 +304,66 @@
             pointer-events: none;
         }
 
-        .line {
+        .comparison-grid {
             position: relative;
             z-index: 1;
-            font-size: calc(clamp(25px, 3.4vw, 42px) * var(--font-scale));
-            line-height: 1.9;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 34px;
+            width: 100%;
+        }
+
+        .comparison-column {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comparison-column-title {
+            text-align: center;
+            font-size: 13px;
+            letter-spacing: .16em;
+            opacity: .62;
+            margin-bottom: 2px;
+        }
+
+        .comparison-line {
+            font-size: clamp(25px, 3.4vw, 42px);
+            line-height: 1.7;
             text-align: center;
             letter-spacing: .13em;
-            transition: font-size 0.15s ease-out; 
+            font-weight: var(--font-weight);
+            transition: font-size .15s ease-out, font-weight .15s ease-out, color .2s ease;
+            white-space: nowrap;
+        }
+
+        .comparison-column.hand-column .comparison-line {
+            font-size: calc(clamp(25px, 3.4vw, 42px) * var(--font-scale));
+            color: var(--hand);
+        }
+
+        .comparison-column.machine-column .comparison-line {
+            color: #000;
+        }
+
+        .book.no-classification .comparison-column.hand-column .comparison-line {
+            color: #000 !important;
         }
 
         .hand {
             color: var(--hand);
-            font-weight: 500;
+            font-weight: inherit;
         }
 
         .machine {
             color: var(--machine);
-            font-weight: 500;
+            font-weight: inherit;
+        }
+
+        .book.no-classification .hand,
+        .book.no-classification .machine {
+            color: #000 !important;
         }
 
         .legend {
@@ -411,7 +455,16 @@
                 min-height: 460px;
                 padding: 30px 5%;
             }
-            .line {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .comparison-column {
+                gap: 6px;
+            }
+
+            .comparison-line {
                 letter-spacing: .05em;
             }
             .file-status {
@@ -430,6 +483,7 @@
             <button id="musicBtn">♫ 播放音樂</button>
             <button id="paperBtn" class="active">紙本</button>
             <button id="nightBtn">夜色</button>
+            <button id="colorBtn" class="active">關閉分類</button>
         </div>
     </header>
 
@@ -462,6 +516,12 @@
                     <input type="range" id="fontSizeSlider" min="0.8" max="1.8" step="0.05" value="1">
                 </div>
             </div>
+            <div class="font-weight-wrap">
+                <label for="fontWeightSlider">字體粗細</label>
+                <div class="live-display-row">
+                    <input type="range" id="fontWeightSlider" min="100" max="900" step="100" value="500">
+                </div>
+            </div>
             <div class="file-status" id="fileStatus">等待即時展示與字體</div>
         </section>
 
@@ -485,7 +545,7 @@
             </div>
             <div class="page" id="page"></div>
             <div class="legend">
-                <span class="item"><i class="dot hand"></i>手寫內容</span>
+                <span class="item"><i class="dot hand"></i>手寫字體</span>
                 <span class="item"><i class="dot machine"></i>機器生成</span>
             </div>
             <div class="page-control">
@@ -514,22 +574,187 @@
                 background: "./img/PGE_chg.jpg",
                 promptDesc: "背景圖由 Gemini 生成，Prompt: 生成一張唐代詩人白居易的圖片，適合拿來當網頁背景圖，繪畫風格符合寫下長恨歌的時代背景，要很中國古代風格",
                 pages: [
-                    [["漢皇重色思傾國", "後宮佳麗三千人"], ["三千寵愛在一身", "金屋妝成嬌侍夜"], ["春宵苦短日高起", "從此君王不早朝"], ["春寒賜浴華清池", "溫泉水滑洗凝脂"]],
-                    [["春寒賜浴華清池", "溫泉水滑洗凝脂"], ["侍兒扶起嬌無力", "始是新承恩澤時"], ["雲鬢花顏金步搖", "芙蓉帳暖度春宵"], ["春宵苦短日高起", "從此君王不早朝"]],
-                    [["承歡侍宴無閑暇", "春從春遊夜專夜"], ["後宮佳麗三千人", "三千寵愛在一身"], ["金屋粧成嬌侍夜", "玉樓宴罷醉和春"], ["姊妹弟兄皆列土", "可憐光彩生門戶"]],
-                    [["遂令天下父母心", "不重生男重生女"], ["驪宮高處入青雲", "仙樂風飄處處聞"], ["緩歌慢舞凝絲竹", "盡日君王看不足"], ["漁陽鞞鼓動地來", "驚破霓裳羽衣曲"]],
-                    [["九重城闕煙塵生", "千乘萬騎西南行"], ["翠華搖搖行復止", "西出都門百餘里"], ["六軍不發無奈何", "宛轉娥眉馬前死"], ["花鈿委地無人收", "翠翹金雀玉搔頭"]],
-                    [["君王掩面救不得", "迴看血淚相和流"], ["黃埃散漫風蕭索", "雲棧縈紆登劍閣"], ["峨嵋山下少人行", "旌旗無光日色薄"], ["蜀江水碧蜀山青", "聖主朝朝暮暮情"]],
-                    [["行宮見月傷心色", "夜雨聞鈴腸斷聲"], ["天旋日轉迴龍馭", "到此躊躇不能去"], ["馬嵬坡下泥土中", "不見玉顔空死處"], ["君臣相顧盡霑衣", "東望都門信馬歸"]],
-                    [["歸來池苑皆依舊", "太液芙蓉未央柳"], ["芙蓉如面柳如眉", "對此如何不淚垂"], ["春風桃李花開夜", "秋雨梧桐葉落時"], ["西宮南苑多秋草", "宮葉滿階紅不掃"]],
-                    [["梨園弟子白髮新", "椒房阿監青娥老"], ["夕殿螢飛思悄然", "孤燈挑盡未成眠"], ["遲遲鐘鼓初長夜", "耿耿星河欲曙天"], ["鴛鴦瓦冷霜華重", "翡翠衾寒誰與共"]],
-                    [["悠悠生死別經年", "魂魄不曾來入夢"], ["臨邛道士鴻都客", "能以精誠致魂魄"], ["為感君王輾轉思", "遂教方士殷勤覓"], ["排空馭氣奔如電", "昇天入地求之遍"]],
-                    [["上窮碧落下黃泉", "兩處茫茫皆不見"], ["忽聞海上有仙山", "山在虛無縹緲間"], ["樓閣玲瓏五雲起", "其中綽約多仙子"], ["中有一人字太真", "雪膚花貌參差是"]],
-                    [["金闕西廂叩玉扃", "轉教小玉報雙成"], ["聞道漢家天子使", "九華帳裏夢魂驚"], ["攬衣推枕起徘徊", "珠箔銀屏邐迤開"], ["雲鬢半偏新睡覺", "花冠不整下堂來"]],
-                    [["風吹仙袂飄颻舉", "猶似霓裳羽衣舞"], ["玉容寂寞淚闌干", "梨花一枝春帶雨"], ["含情凝睇謝君王", "一別音容兩渺茫"], ["昭陽殿裏恩愛絶", "蓬萊宮中日月長"]],
-                    [["迴頭下望人寰處", "不見長安見塵霧"], ["唯將舊物表深情", "鈿合金釵寄將去"], ["釵留一股合一扇", "釵擘黃金合分鈿"], ["但令心似金鈿堅", "天上人間會相見"]],
-                    [["臨別殷勤重寄詞", "詞中有誓兩心知"], ["七月七日長生殿", "夜半無人私語時"], ["在天願作比翼鳥", "在地願為連理枝"], ["天長地久有時盡", "此恨緜緜無絶期"]]
-                ]
+                    [
+                                        "漢皇重色思傾國",
+                                        "後宮佳麗三千人",
+                                        "三千寵愛在一身",
+                                        "金屋妝成嬌侍夜"
+                    ],
+                    [
+                                        "春宵苦短日高起",
+                                        "從此君王不早朝",
+                                        "春寒賜浴華清池",
+                                        "溫泉水滑洗凝脂"
+                    ],
+                    [
+                                        "春寒賜浴華清池",
+                                        "溫泉水滑洗凝脂",
+                                        "侍兒扶起嬌無力",
+                                        "始是新承恩澤時"
+                    ],
+                    [
+                                        "雲鬢花顏金步搖",
+                                        "芙蓉帳暖度春宵",
+                                        "春宵苦短日高起",
+                                        "從此君王不早朝"
+                    ],
+                    [
+                                        "承歡侍宴無閑暇",
+                                        "春從春遊夜專夜",
+                                        "後宮佳麗三千人",
+                                        "三千寵愛在一身"
+                    ],
+                    [
+                                        "金屋粧成嬌侍夜",
+                                        "玉樓宴罷醉和春",
+                                        "姊妹弟兄皆列土",
+                                        "可憐光彩生門戶"
+                    ],
+                    [
+                                        "遂令天下父母心",
+                                        "不重生男重生女",
+                                        "驪宮高處入青雲",
+                                        "仙樂風飄處處聞"
+                    ],
+                    [
+                                        "緩歌慢舞凝絲竹",
+                                        "盡日君王看不足",
+                                        "漁陽鞞鼓動地來",
+                                        "驚破霓裳羽衣曲"
+                    ],
+                    [
+                                        "九重城闕煙塵生",
+                                        "千乘萬騎西南行",
+                                        "翠華搖搖行復止",
+                                        "西出都門百餘里"
+                    ],
+                    [
+                                        "六軍不發無奈何",
+                                        "宛轉娥眉馬前死",
+                                        "花鈿委地無人收",
+                                        "翠翹金雀玉搔頭"
+                    ],
+                    [
+                                        "君王掩面救不得",
+                                        "迴看血淚相和流",
+                                        "黃埃散漫風蕭索",
+                                        "雲棧縈紆登劍閣"
+                    ],
+                    [
+                                        "峨嵋山下少人行",
+                                        "旌旗無光日色薄",
+                                        "蜀江水碧蜀山青",
+                                        "聖主朝朝暮暮情"
+                    ],
+                    [
+                                        "行宮見月傷心色",
+                                        "夜雨聞鈴腸斷聲",
+                                        "天旋日轉迴龍馭",
+                                        "到此躊躇不能去"
+                    ],
+                    [
+                                        "馬嵬坡下泥土中",
+                                        "不見玉顔空死處",
+                                        "君臣相顧盡霑衣",
+                                        "東望都門信馬歸"
+                    ],
+                    [
+                                        "歸來池苑皆依舊",
+                                        "太液芙蓉未央柳",
+                                        "芙蓉如面柳如眉",
+                                        "對此如何不淚垂"
+                    ],
+                    [
+                                        "春風桃李花開夜",
+                                        "秋雨梧桐葉落時",
+                                        "西宮南苑多秋草",
+                                        "宮葉滿階紅不掃"
+                    ],
+                    [
+                                        "梨園弟子白髮新",
+                                        "椒房阿監青娥老",
+                                        "夕殿螢飛思悄然",
+                                        "孤燈挑盡未成眠"
+                    ],
+                    [
+                                        "遲遲鐘鼓初長夜",
+                                        "耿耿星河欲曙天",
+                                        "鴛鴦瓦冷霜華重",
+                                        "翡翠衾寒誰與共"
+                    ],
+                    [
+                                        "悠悠生死別經年",
+                                        "魂魄不曾來入夢",
+                                        "臨邛道士鴻都客",
+                                        "能以精誠致魂魄"
+                    ],
+                    [
+                                        "為感君王輾轉思",
+                                        "遂教方士殷勤覓",
+                                        "排空馭氣奔如電",
+                                        "昇天入地求之遍"
+                    ],
+                    [
+                                        "上窮碧落下黃泉",
+                                        "兩處茫茫皆不見",
+                                        "忽聞海上有仙山",
+                                        "山在虛無縹緲間"
+                    ],
+                    [
+                                        "樓閣玲瓏五雲起",
+                                        "其中綽約多仙子",
+                                        "中有一人字太真",
+                                        "雪膚花貌參差是"
+                    ],
+                    [
+                                        "金闕西廂叩玉扃",
+                                        "轉教小玉報雙成",
+                                        "聞道漢家天子使",
+                                        "九華帳裏夢魂驚"
+                    ],
+                    [
+                                        "攬衣推枕起徘徊",
+                                        "珠箔銀屏邐迤開",
+                                        "雲鬢半偏新睡覺",
+                                        "花冠不整下堂來"
+                    ],
+                    [
+                                        "風吹仙袂飄颻舉",
+                                        "猶似霓裳羽衣舞",
+                                        "玉容寂寞淚闌干",
+                                        "梨花一枝春帶雨"
+                    ],
+                    [
+                                        "含情凝睇謝君王",
+                                        "一別音容兩渺茫",
+                                        "昭陽殿裏恩愛絶",
+                                        "蓬萊宮中日月長"
+                    ],
+                    [
+                                        "迴頭下望人寰處",
+                                        "不見長安見塵霧",
+                                        "唯將舊物表深情",
+                                        "鈿合金釵寄將去"
+                    ],
+                    [
+                                        "釵留一股合一扇",
+                                        "釵擘黃金合分鈿",
+                                        "但令心似金鈿堅",
+                                        "天上人間會相見"
+                    ],
+                    [
+                                        "臨別殷勤重寄詞",
+                                        "詞中有誓兩心知",
+                                        "七月七日長生殿",
+                                        "夜半無人私語時"
+                    ],
+                    [
+                                        "在天願作比翼鳥",
+                                        "在地願為連理枝",
+                                        "天長地久有時盡",
+                                        "此恨緜緜無絶期"
+                    ]
+]
             },
             pipa: {
                 title: "琵琶行",
@@ -537,18 +762,139 @@
                 background: "./img/PGE_ppx.jpg",
                 promptDesc: "背景圖由 Gemini 生成，Prompt: 生成一張唐代詩人白居易的圖片，適合拿來當網頁背景圖，繪畫風格符合寫下琵琶行的時代背景，要很中國古代風格",
                 pages: [
-                    [["潯陽江頭夜送客", "楓葉荻花秋瑟瑟"], ["主人下馬客在船", "舉酒欲飲無管弦"], ["醉不成歡慘將別", "別時茫茫江浸月"], ["忽聞水上琵琶聲", "主人忘歸客不發"]],
-                    [["尋聲暗問彈者誰", "琵琶聲停欲語遲"], ["移船相近邀相見", "添酒回燈重開宴"], ["千呼萬喚始出來", "猶抱琵琶半遮面"], ["轉軸撥弦三兩聲", "未成曲調先有情"]],
-                    [["絃絃掩抑聲聲思", "似訴平生不得意"], ["低眉信手續續彈", "說盡心中無限事"], ["輕攏慢撚抹復挑", "初為霓裳後綠腰"], ["大絃嘈嘈如急雨", "小絃切切如私語"]],
-                    [["嘈嘈切切錯雜彈", "大珠小珠落玉盤"], ["間關鶯語花底滑", "幽咽泉流冰下難"], ["冰泉冷澀絃凝絕", "凝絕不通聲暫歇"], ["別有幽愁暗恨生", "此時無聲勝有聲"]],
-                    [["銀瓶乍破水漿迸", "鐵騎突出刀槍鳴"], ["曲終收撥當心畫", "四絃一聲如裂帛"], ["東舟西舫悄無言", "唯見江心秋月白"], ["沉吟放撥插絃中", "整頓衣裳起斂容"]],
-                    [["自言本是京城女", "家在蝦蟇陵下住"], ["十三學得琵琶成", "名屬教坊第一部"], ["曲罷曾教善才伏", "妝成每被秋娘妬"], ["五陵年少爭纏頭", "一曲紅綃不知數"]],
-                    [["鈿頭雲篦擊節碎", "血色羅裙翻酒汙"], ["今年歡笑復明年", "秋月春風等閑度"], ["弟走從軍阿姨死", "暮去朝來顏色故"], ["門前冷落鞍馬稀", "老大嫁作商人婦"]],
-                    [["商人重利輕別離", "前月浮梁買茶去"], ["去來江口守空船", "遶船月明江水寒"], ["夜深忽夢少年事", "夢啼妝淚紅闌干"], ["我聞琵琶已歎息", "又聞此語重唧唧"]],
-                    [["同是天涯淪落人", "相逢何必曾相識"], ["我從去年辭帝京", "謫居臥病潯陽城"], ["潯陽小處無音樂", "終歲不聞絲竹聲"], ["住近湓江地低濕", "黃蘆苦竹繞宅生"]],
-                    [["其間旦暮聞何物", "杜鵑啼哭猿哀鳴"], ["春江花朝秋月夜", "往往取酒還獨傾"], ["豈無山歌與村笛", "歐啞嘲哳難為聽"], ["今夜聞君琵琶語", "如聽仙樂耳暫明"]],
-                    [["莫辭更坐彈一曲", "為君飜作琵琶行"], ["感我此言良久立", "卻坐促絃絃轉急"], ["淒淒不似向前聲", "滿座重聞皆掩泣"], ["就中泣下誰最多", "江州司馬青衫濕"]]
-                ]
+                    [
+                                        "潯陽江頭夜送客",
+                                        "楓葉荻花秋瑟瑟",
+                                        "主人下馬客在船",
+                                        "舉酒欲飲無管弦"
+                    ],
+                    [
+                                        "醉不成歡慘將別",
+                                        "別時茫茫江浸月",
+                                        "忽聞水上琵琶聲",
+                                        "主人忘歸客不發"
+                    ],
+                    [
+                                        "尋聲暗問彈者誰",
+                                        "琵琶聲停欲語遲",
+                                        "移船相近邀相見",
+                                        "添酒回燈重開宴"
+                    ],
+                    [
+                                        "千呼萬喚始出來",
+                                        "猶抱琵琶半遮面",
+                                        "轉軸撥弦三兩聲",
+                                        "未成曲調先有情"
+                    ],
+                    [
+                                        "絃絃掩抑聲聲思",
+                                        "似訴平生不得意",
+                                        "低眉信手續續彈",
+                                        "說盡心中無限事"
+                    ],
+                    [
+                                        "輕攏慢撚抹復挑",
+                                        "初為霓裳後綠腰",
+                                        "大絃嘈嘈如急雨",
+                                        "小絃切切如私語"
+                    ],
+                    [
+                                        "嘈嘈切切錯雜彈",
+                                        "大珠小珠落玉盤",
+                                        "間關鶯語花底滑",
+                                        "幽咽泉流冰下難"
+                    ],
+                    [
+                                        "冰泉冷澀絃凝絕",
+                                        "凝絕不通聲暫歇",
+                                        "別有幽愁暗恨生",
+                                        "此時無聲勝有聲"
+                    ],
+                    [
+                                        "銀瓶乍破水漿迸",
+                                        "鐵騎突出刀槍鳴",
+                                        "曲終收撥當心畫",
+                                        "四絃一聲如裂帛"
+                    ],
+                    [
+                                        "東舟西舫悄無言",
+                                        "唯見江心秋月白",
+                                        "沉吟放撥插絃中",
+                                        "整頓衣裳起斂容"
+                    ],
+                    [
+                                        "自言本是京城女",
+                                        "家在蝦蟇陵下住",
+                                        "十三學得琵琶成",
+                                        "名屬教坊第一部"
+                    ],
+                    [
+                                        "曲罷曾教善才伏",
+                                        "妝成每被秋娘妬",
+                                        "五陵年少爭纏頭",
+                                        "一曲紅綃不知數"
+                    ],
+                    [
+                                        "鈿頭雲篦擊節碎",
+                                        "血色羅裙翻酒汙",
+                                        "今年歡笑復明年",
+                                        "秋月春風等閑度"
+                    ],
+                    [
+                                        "弟走從軍阿姨死",
+                                        "暮去朝來顏色故",
+                                        "門前冷落鞍馬稀",
+                                        "老大嫁作商人婦"
+                    ],
+                    [
+                                        "商人重利輕別離",
+                                        "前月浮梁買茶去",
+                                        "去來江口守空船",
+                                        "遶船月明江水寒"
+                    ],
+                    [
+                                        "夜深忽夢少年事",
+                                        "夢啼妝淚紅闌干",
+                                        "我聞琵琶已歎息",
+                                        "又聞此語重唧唧"
+                    ],
+                    [
+                                        "同是天涯淪落人",
+                                        "相逢何必曾相識",
+                                        "我從去年辭帝京",
+                                        "謫居臥病潯陽城"
+                    ],
+                    [
+                                        "潯陽小處無音樂",
+                                        "終歲不聞絲竹聲",
+                                        "住近湓江地低濕",
+                                        "黃蘆苦竹繞宅生"
+                    ],
+                    [
+                                        "其間旦暮聞何物",
+                                        "杜鵑啼哭猿哀鳴",
+                                        "春江花朝秋月夜",
+                                        "往往取酒還獨傾"
+                    ],
+                    [
+                                        "豈無山歌與村笛",
+                                        "歐啞嘲哳難為聽",
+                                        "今夜聞君琵琶語",
+                                        "如聽仙樂耳暫明"
+                    ],
+                    [
+                                        "莫辭更坐彈一曲",
+                                        "為君飜作琵琶行",
+                                        "感我此言良久立",
+                                        "卻坐促絃絃轉急"
+                    ],
+                    [
+                                        "淒淒不似向前聲",
+                                        "滿座重聞皆掩泣",
+                                        "就中泣下誰最多",
+                                        "江州司馬青衫濕"
+                    ]
+]
             }
         };
 
@@ -696,28 +1042,11 @@
             }
         }
 
-        function classify(text) {
-            const out = [];
-            for (const c of [...normalize(text)]) {
-                if (handwritingText.includes(c)) {
-                    out.push("hand");
-                } else {
-                    out.push("machine");
-                }
-            }
-            return out;
-        }
-
-        function segmented(text) {
-            const t = normalize(text), c = classify(t);
-            return [...t].map((x, i) => `<span class="${c[i]}">${x}</span>`).join("");
-        }
-
         function render() {
             const poem = poems[currentPoem];
             $("poemTitle").textContent = poem.title;
 
-            // 依目前詩詞切換古詩背景圖片
+            // 依目前詩詞切換背景圖片
             document.querySelector(".book").style.setProperty(
                 "--poem-bg",
                 `url("${poem.background}")`
@@ -734,22 +1063,66 @@
             $("pageNumber").textContent = `${currentPage + 1} / ${poem.pages.length}`;
             $("prevBtn").disabled = currentPage === 0;
             $("nextBtn").disabled = currentPage === poem.pages.length - 1;
-            
+
             const page = $("page");
             page.innerHTML = "";
-            
-            for (const [a, b] of poem.pages[currentPage]) {
-                const d = document.createElement("div");
-                d.className = "line";
-                d.innerHTML = segmented(a) + " " + segmented(b);
-                page.appendChild(d);
+
+            // 每頁 4 句；左右各顯示一次，方便直接比較兩種字體。
+            const lines = poem.pages[currentPage];
+
+            const grid = document.createElement("div");
+            grid.className = "comparison-grid";
+
+            const handColumn = document.createElement("div");
+            handColumn.className = "comparison-column hand-column";
+
+            const machineColumn = document.createElement("div");
+            machineColumn.className = "comparison-column machine-column";
+
+            const handTitle = document.createElement("div");
+            handTitle.className = "comparison-column-title";
+            handTitle.textContent = "手寫字體包";
+
+            const machineTitle = document.createElement("div");
+            machineTitle.className = "comparison-column-title";
+            machineTitle.textContent = "電腦字體";
+
+            handColumn.appendChild(handTitle);
+            machineColumn.appendChild(machineTitle);
+
+            for (const line of lines) {
+                const handLine = document.createElement("div");
+                handLine.className = "comparison-line";
+
+                // 手寫字體包：有手寫資料的字為紅色，沒有的字為藍色（機器生成）
+                for (const char of [...normalize(line)]) {
+                    const span = document.createElement("span");
+                    span.textContent = char;
+                    span.className = handwritingText.includes(char) ? "hand" : "machine";
+                    handLine.appendChild(span);
+                }
+
+                const machineLine = document.createElement("div");
+                machineLine.className = "comparison-line";
+                machineLine.textContent = line;
+
+                handColumn.appendChild(handLine);
+                machineColumn.appendChild(machineLine);
             }
-            
+
+            grid.appendChild(handColumn);
+            grid.appendChild(machineColumn);
+            page.appendChild(grid);
+
             const demoFont = fontLoaded
                 ? `"${currentFontName}", serif`
                 : '"STKaiti", "KaiTi", "DFKai-SB", serif';
 
-            page.style.fontFamily = demoFont;
+            // 左欄使用上傳的手寫字體；右欄使用電腦字體。
+            handColumn.style.fontFamily = demoFont;
+            machineColumn.style.fontFamily =
+                '"Noto Serif TC", "PMingLiU", "MingLiU", serif';
+
             $("liveDisplayName").style.fontFamily = demoFont;
         }
 
@@ -768,10 +1141,24 @@
         
         $("fontFileInput").addEventListener("change", e => loadSelectedStudentFont(e.target.files[0]));
 
-        // 監聽拉桿事件，即時改變 CSS 變數中的縮放倍率
+        // 詩詞大小
         $("fontSizeSlider").addEventListener("input", e => {
             document.documentElement.style.setProperty('--font-scale', e.target.value);
         });
+
+        // 字體粗細：100（最細）～ 900（最粗）
+        $("fontWeightSlider").addEventListener("input", e => {
+            document.documentElement.style.setProperty('--font-weight', e.target.value);
+        });
+
+        // 開啟分類 / 關閉分類
+        $("colorBtn").onclick = () => {
+            const book = document.querySelector(".book");
+            const classificationOff = book.classList.toggle("no-classification");
+
+            $("colorBtn").textContent = classificationOff ? "開啟分類" : "關閉分類";
+            $("colorBtn").classList.toggle("active", !classificationOff);
+        };
 
         document.querySelectorAll('.tab').forEach(t => {
             t.onclick = () => {
